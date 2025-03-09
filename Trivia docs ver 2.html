@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trivia: Google Docs y Presentaciones</title>
+    
+    <!-- Tailwind CSS desde CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome para iconos -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    
+    <!-- Sonidos cortos -->
+    <audio id="correctSound" src="https://www.fesliyanstudios.com/play-mp3/387"></audio>
+    <audio id="wrongSound" src="https://www.fesliyanstudios.com/play-mp3/390"></audio>
+</head>
+<body class="bg-gradient-to-r from-pink-100 to-purple-200 min-h-screen flex flex-col items-center justify-center text-center p-4">
+    
+    <!-- Mensaje de bienvenida -->
+    <div id="welcome" class="text-center p-6 bg-white shadow-xl rounded-lg border-4 border-pink-400">
+        <h1 class="text-3xl font-bold text-purple-600">🎉 ¡Bienvenido a la Trivia! 🎉</h1>
+        <p class="text-gray-700 mt-2">Pon a prueba tus conocimientos sobre Google Docs y Presentaciones. ¿Estás listo? 😃</p>
+        <button onclick="startQuiz()" class="mt-4 px-6 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-700 transition-transform transform hover:scale-110">Comenzar</button>
+    </div>
+    
+    <!-- Contenedor de la trivia -->
+    <div id="quizContainer" class="hidden text-center p-6 bg-white shadow-xl rounded-lg border-4 border-purple-400 w-full max-w-xl">
+        <h2 id="question" class="text-xl font-bold text-gray-800"></h2>
+        <div id="options" class="mt-4 flex flex-col gap-2"></div>
+        <p id="feedback" class="mt-4 text-lg font-semibold"></p>
+        <button id="restartButton" onclick="restartQuiz()" class="hidden mt-4 px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition-transform transform hover:scale-110">🔄 Reiniciar</button>
+    </div>
+    
+    <!-- JavaScript para la lógica -->
+    <script>
+        const questions = [
+            { question: "¿Para qué sirve Google Docs?", options: ["🎬 Para ver videos", "📄 Para escribir documentos y compartirlos", "🖍️ Para hacer dibujos"], answer: 1 },
+            { question: "¿Cómo puedes cambiar el tamaño de la letra en Google Docs?", options: ["🔍 Usando una lupa", "🔠 Haciendo clic en el menú de fuente", "🎤 Gritándole a la computadora"], answer: 1 },
+            { question: "¿Qué botón usas para guardar un documento en Google Docs?", options: ["✅ No es necesario, ¡se guarda solo!", "💾 Hay que hacer clic en 'Guardar'", "⌨️ Presionar la tecla 'S'"], answer: 0 },
+            { question: "¿Cómo se inserta una imagen en Google Docs?", options: ["🖼️ Usando la opción 'Insertar imagen'", "🎥 Grabando un video", "✏️ Dibujándola con el mouse"], answer: 0 },
+            { question: "¿Cómo puedes compartir un documento en Google Docs?", options: ["📩 Enviándolo por correo desde la opción 'Compartir'", "📦 Guardándolo en una caja física", "📞 Dictándolo por teléfono"], answer: 0 },
+            { question: "¿Para qué sirve Google Presentaciones?", options: ["🎤 Para hacer presentaciones y diapositivas", "🎮 Para jugar videojuegos", "🎵 Para escuchar música"], answer: 0 },
+            { question: "¿Cómo se agrega una diapositiva nueva en Google Presentaciones?", options: ["➕ Haciendo clic en 'Nueva diapositiva'", "🔄 Reiniciando la computadora", "🖨️ Imprimiendo una hoja en blanco"], answer: 0 },
+            { question: "¿Qué herramienta permite cambiar el fondo de una diapositiva?", options: ["🎨 La opción 'Fondo'", "📝 El editor de texto", "🔧 La herramienta de ajustes"], answer: 0 },
+            { question: "¿Cómo se inserta un video en Google Presentaciones?", options: ["📹 Usando 'Insertar video'", "🎧 Usando un micrófono", "📚 Pegando un enlace en un documento de texto"], answer: 0 },
+            { question: "¿Qué opción permite añadir animaciones a los elementos de una diapositiva?", options: ["✨ La herramienta 'Animaciones'", "🖋️ La opción 'Dibujar'", "📞 Llamando a un técnico"], answer: 0 }
+        ];
+
+        let currentQuestion = 0;
+        
+        function startQuiz() {
+            document.getElementById("welcome").classList.add("hidden");
+            document.getElementById("quizContainer").classList.remove("hidden");
+            showQuestion();
+        }
+        
+        function showQuestion() {
+            let q = questions[currentQuestion];
+            document.getElementById("question").textContent = q.question;
+            let optionsDiv = document.getElementById("options");
+            optionsDiv.innerHTML = "";
+
+            q.options.forEach((option, index) => {
+                let button = document.createElement("button");
+                button.textContent = option;
+                button.className = "px-4 py-2 bg-purple-300 text-black rounded-lg hover:bg-purple-500 border-2 border-purple-600 transition-transform transform hover:scale-105";
+                button.onclick = () => checkAnswer(index);
+                optionsDiv.appendChild(button);
+            });
+        }
+
+        function checkAnswer(selectedIndex) {
+            let q = questions[currentQuestion];
+            let isCorrect = selectedIndex === q.answer;
+            
+            // Reproduce el sonido adecuado
+            if (isCorrect) {
+                document.getElementById("correctSound").play();
+                document.getElementById("feedback").textContent = "¡Correcto! 🎉";
+                document.getElementById("feedback").classList.add("text-green-500");
+                document.getElementById("feedback").classList.remove("text-red-500");
+            } else {
+                document.getElementById("wrongSound").play();
+                document.getElementById("feedback").textContent = "¡Incorrecto! 😞";
+                document.getElementById("feedback").classList.add("text-red-500");
+                document.getElementById("feedback").classList.remove("text-green-500");
+            }
+
+            // Espera 1.5 segundos antes de cargar la siguiente pregunta
+            setTimeout(() => {
+                currentQuestion++;
+                if (currentQuestion < questions.length) {
+                    showQuestion();
+                    document.getElementById("feedback").textContent = "";
+                } else {
+                    document.getElementById("feedback").textContent = "¡Has terminado la trivia! 🎉";
+                    document.getElementById("restartButton").classList.remove("hidden");
+                }
+            }, 1500);
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            document.getElementById("restartButton").classList.add("hidden");
+            document.getElementById("feedback").textContent = "";
+            showQuestion();
+        }
+    </script>
+</body>
+</html>
